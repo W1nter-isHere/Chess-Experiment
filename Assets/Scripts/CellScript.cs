@@ -11,7 +11,7 @@ public class CellScript : MonoBehaviour
         Debug.Log(Row.ToString() + ", " + Column.ToString());
         if (ChessOnTop != null)
         {
-            Debug.Log(ChessOnTop.Type.Name);
+            Debug.Log(ChessOnTop.Type);
             Debug.Log(ChessOnTop.Row.ToString() + ", " + ChessOnTop.Column.ToString());
         }
         

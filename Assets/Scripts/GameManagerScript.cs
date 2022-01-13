@@ -1,16 +1,19 @@
 using System;
 using System.Collections.Generic;
+using IO;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
-using Pieces;
+using Utilities;
 
 public class GameManagerScript : MonoBehaviour
 {
+    public static bool UseAI = false;
+    
     public static readonly Dictionary<(int, int), ChessPieceScript> PiecesOnBoard =
         new Dictionary<(int, int), ChessPieceScript>();
-
+    
     public static readonly Dictionary<(int, int), CellScript> CellsOnBoard = new Dictionary<(int, int), CellScript>();
 
     private static Dictionary<ChessPieceScript, (float, float)> _moveQueue =
@@ -27,7 +30,8 @@ public class GameManagerScript : MonoBehaviour
     public Texture2D chessTexture;
     public Texture2D overlayTexture;
     [FormerlySerializedAs("_round")] public uint round = 1;
-
+    public GameObject escapeUI;
+    
     private CellScript _selectedCell;
 
     void Start()
@@ -50,8 +54,8 @@ public class GameManagerScript : MonoBehaviour
         {
             var obj = toMove.Key.gameObject;
             var vec3 = obj.transform.position;
-            vec3 = new Vector3(math.lerp(vec3.x, toMove.Value.Item1, 0.05f),
-                math.lerp(vec3.y, toMove.Value.Item2, 0.05f), -0.1f);
+            vec3 = new Vector3(math.lerp(vec3.x, toMove.Value.Item1, 0.1f),
+                math.lerp(vec3.y, toMove.Value.Item2, 0.1f), -0.1f);
             obj.transform.position = vec3;
 
             if (Math.Round(vec3.x, 5) == Math.Round(toMove.Value.Item1, 5) &&
@@ -122,7 +126,7 @@ public class GameManagerScript : MonoBehaviour
             // highlight selected cell
             var selectedCellSpriteRenderer = _selectedCell.gameObject.GetComponent<SpriteRenderer>();
             selectedCellSpriteRenderer.sprite =
-                Sprite.Create(overlayTexture, new Rect(0, 0, 100, 100), new Vector2(0.1f, 0.055f));
+                Sprite.Create(overlayTexture, new Rect(0, 0, 100, 100), new Vector2(0f, 0f));
             selectedCellSpriteRenderer.color = new Color(Color.cyan.r, Color.cyan.g, Color.cyan.b, 0.2f);
 
             var movement = new PieceMovement(_selectedCell.ChessOnTop.Type, (cell.Row, cell.Column),
@@ -133,7 +137,7 @@ public class GameManagerScript : MonoBehaviour
             {
                 var spriteRenderer = CellsOnBoard[move.GetDestCell()].gameObject.GetComponent<SpriteRenderer>();
                 spriteRenderer.sprite =
-                    Sprite.Create(overlayTexture, new Rect(0, 0, 100, 100), new Vector2(0.1f, 0.055f));
+                    Sprite.Create(overlayTexture, new Rect(0, 0, 100, 100), new Vector2(0f, 0f));
                 spriteRenderer.color = new Color(Color.green.r, Color.green.g, Color.green.b, 0.3f);
             }
         }
@@ -168,11 +172,11 @@ public class GameManagerScript : MonoBehaviour
     {
         if (eat)
         {
-            ChessPieceScript toBeEatenPiece;
-
             try
             {
-                toBeEatenPiece = PiecesOnBoard[movement.GetDestCell()];
+                var toBeEatenPiece = PiecesOnBoard[movement.GetDestCell()];
+                PiecesOnBoard.Remove((toBeEatenPiece.Row, toBeEatenPiece.Column));
+                deadPileManager.GetComponent<DeadPileManagerScript>().AddToDeadPile(toBeEatenPiece);
             }
             catch
             {
@@ -180,21 +184,23 @@ public class GameManagerScript : MonoBehaviour
                                "but no piece found");
                 throw new Exception();
             }
-
-            deadPileManager.GetComponent<DeadPileManagerScript>().AddToDeadPile(ref toBeEatenPiece);
         }
 
-        QueueMove(piece, movement);
+        Utilities.QueueMove(piece, movement);
         PiecesOnBoard.Remove((piece.Row, piece.Column));
         piece.Row = movement.GetDestCell().Item1;
         piece.Column = movement.GetDestCell().Item2;
         piece.MovesAmount += 1;
         PiecesOnBoard.Add((piece.Row, piece.Column), piece);
+        IOUtilities.Save();
+        
         return true;
     }
 
     private void InitializeBoard()
     {
+        Debug.Log("Initializing board...");
+        
         for (var row = 0; row < 8; row++)
         {
             for (var column = 0; column < 4; column++)
@@ -204,11 +210,12 @@ public class GameManagerScript : MonoBehaviour
                 var chessPieceScript = createdPiece.GetComponent<ChessPieceScript>();
                 chessPieceScript.Row = row;
                 chessPieceScript.Column = column > 1 ? column == 2 ? 6 : 7 : column;
+                chessPieceScript.Alive = true;
 
                 SetupType(ref chessPieceScript, row, column);
 
                 // setup position
-                createdPiece.transform.position = GetPosition(row, chessPieceScript.Column);
+                createdPiece.transform.position = Utilities.GetPosition(row, chessPieceScript.Column);
 
                 // setup sprite
                 var pieceSpriteRenderer = createdPiece.GetComponent<SpriteRenderer>();
@@ -222,17 +229,17 @@ public class GameManagerScript : MonoBehaviour
                     pieceSpriteRenderer.color = Color.black;
                 }
 
-                if (chessPieceScript.Type.Name.Equals(PieceType.Pawn.Name))
+                if (chessPieceScript.Type.Equals(PieceType.Pawn.Name))
                 {
-                    pieceSpriteRenderer.sprite = Sprite.Create(chessTexture, chessPieceScript.Type.TextureRect,
-                        new Vector2(-0.08f, 0), 60f);
+                    pieceSpriteRenderer.sprite = Sprite.Create(chessTexture, PieceType.SerializeType(chessPieceScript.Type).GetValueOrDefault(PieceType.Pawn).TextureRect,
+                        new Vector2(-0.25f, 0), 60f);
                 }
                 else
                 {
-                    pieceSpriteRenderer.sprite = Sprite.Create(chessTexture, chessPieceScript.Type.TextureRect,
-                        new Vector2(0, 0), 60f);
+                    pieceSpriteRenderer.sprite = Sprite.Create(chessTexture, PieceType.SerializeType(chessPieceScript.Type).GetValueOrDefault(PieceType.Pawn).TextureRect,
+                        new Vector2(-0.1f, 0), 60f);
                 }
-
+                
                 // add to board data
                 PiecesOnBoard.Add((row, chessPieceScript.Column), chessPieceScript);
             }
@@ -240,7 +247,7 @@ public class GameManagerScript : MonoBehaviour
             for (var column = 0; column < 8; column++)
             {
                 var createdCell = Instantiate(cellPrefab);
-                createdCell.transform.position = GetPosition(row, column);
+                createdCell.transform.position = Utilities.GetPosition(row, column);
                 var script = createdCell.GetComponent<CellScript>();
                 script.Row = row;
                 script.Column = column;
@@ -254,15 +261,19 @@ public class GameManagerScript : MonoBehaviour
                 }
 
                 CellsOnBoard.Add((row, column), script);
+                // Debug.Log("Added cell at: " + row + ", " + column);
             }
         }
+        
+        // IOUtilities.Load();
+        IOUtilities.Save();
     }
 
     private static void SetupType(ref ChessPieceScript script, int row, int column)
     {
         if (column == 1 || column == 2)
         {
-            script.Type = PieceType.Pawn;
+            script.Type = PieceType.Pawn.Name;
             return;
         }
 
@@ -270,44 +281,47 @@ public class GameManagerScript : MonoBehaviour
         {
             if (row == 0 || row == 7)
             {
-                script.Type = PieceType.Rook;
+                script.Type = PieceType.Rook.Name;
             }
 
             if (row == 1 || row == 6)
             {
-                script.Type = PieceType.Knight;
+                script.Type = PieceType.Knight.Name;
             }
 
             if (row == 2 || row == 5)
             {
-                script.Type = PieceType.Bishop;
+                script.Type = PieceType.Bishop.Name;
             }
 
             if (row == 3)
             {
-                script.Type = PieceType.Queen;
+                script.Type = PieceType.Queen.Name;
             }
 
             if (row == 4)
             {
-                script.Type = PieceType.King;
+                script.Type = PieceType.King.Name;
             }
         }
     }
 
-    public static Vector3 GetPosition(int row, int column)
+    public static class Utilities
     {
-        return new Vector3(-3.9f + row, 3.05f - column, -0.1f);
-    }
+        public static Vector3 GetPosition(int row, int column)
+        {
+            return new Vector3(-4f + row, 3f - column, -0.1f);
+        }
 
-    public static void QueueMove(ChessPieceScript chessPieceScript, IMovement movement)
-    {
-        var a = GetPosition(movement.GetDestCell().Item1, movement.GetDestCell().Item2);
-        _moveQueue.Add(chessPieceScript, (a.x, a.y));
-    }
+        public static void QueueMove(ChessPieceScript chessPieceScript, IMovement movement)
+        {
+            var a = GetPosition(movement.GetDestCell().Item1, movement.GetDestCell().Item2);
+            _moveQueue.Add(chessPieceScript, (a.x, a.y));
+        }
 
-    public static void QueueMove(ChessPieceScript chessPieceScript, Vector3 movement)
-    {
-        _moveQueue.Add(chessPieceScript, (movement.x, movement.y));
+        public static void QueueMove(ChessPieceScript chessPieceScript, Vector3 movement)
+        {
+            _moveQueue.Add(chessPieceScript, (movement.x, movement.y));
+        }
     }
 }

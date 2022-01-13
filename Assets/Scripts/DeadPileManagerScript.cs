@@ -11,14 +11,14 @@ public class DeadPileManagerScript : MonoBehaviour
 
     public ParticleSystem deathParticleSystem;
 
-    public void AddToDeadPile(ref ChessPieceScript toBeEatenPiece)
+    public void AddToDeadPile(ChessPieceScript toBeEatenPiece)
     {
-        GameManagerScript.PiecesOnBoard.Remove((toBeEatenPiece.Row, toBeEatenPiece.Column));
-        deathParticleSystem.transform.position = GameManagerScript.GetPosition(toBeEatenPiece.Row, toBeEatenPiece.Column);
+        toBeEatenPiece.Alive = false;
+        deathParticleSystem.transform.position = GameManagerScript.Utilities.GetPosition(toBeEatenPiece.Row, toBeEatenPiece.Column);
         deathParticleSystem.Play(false);
         toBeEatenPiece.Column = -1;
         toBeEatenPiece.Row = -1;
-        GameManagerScript.QueueMove(toBeEatenPiece, toBeEatenPiece.White ? getWhiteDeadPosition() : getBlackDeadPosition());
+        GameManagerScript.Utilities.QueueMove(toBeEatenPiece, toBeEatenPiece.White ? getWhiteDeadPosition() : getBlackDeadPosition());
         toBeEatenPiece.transform.rotation = new Quaternion(0, 0, Random.Range(-0.6f, 0.6f), 1);
     }
 

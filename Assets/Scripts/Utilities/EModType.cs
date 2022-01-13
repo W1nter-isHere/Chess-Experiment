@@ -1,4 +1,4 @@
-﻿namespace Pieces
+﻿namespace Utilities
 {
     public enum EModType
     {
