@@ -70,11 +70,11 @@ namespace Utilities
             return new Movement((row, column), currentCell);
         }
 
-        public static bool IsInRange(PieceType type, (int, int) currentCell, (int, int) destCell)
+        public static bool IsInRange(PieceTypes types, (int, int) currentCell, (int, int) destCell)
         {
             var row = destCell.Item1 - currentCell.Item1;
             var column = destCell.Item2 - currentCell.Item2;
-            var range = type.PieceLegalMovements.Range;
+            var range = types.PieceLegalMovements.Range;
 
             var r = row < 0 ? -row : row;
             var c = column < 0 ? -column : column;
@@ -84,7 +84,7 @@ namespace Utilities
         
         public static bool IsInRange(string type, (int, int) currentCell, (int, int) destCell)
         {
-            return IsInRange(PieceType.SerializeType(type).GetValueOrDefault(PieceType.Pawn), currentCell, destCell);
+            return IsInRange(PieceTypes.SerializeType(type).GetValueOrDefault(PieceTypes.Pawn), currentCell, destCell);
         }
 
         public static EDirections GetDirectionOfMovement(IMovement movement)
@@ -305,25 +305,25 @@ namespace Utilities
 
     public class PieceMovement : Movement
     {
-        protected readonly PieceType Type;
+        protected readonly PieceTypes Types;
 
         public PieceMovement(string pieceType, (int, int) destCell, (int, int) currentCell) : base(destCell,
             currentCell)
         {
-            Type = PieceType.SerializeType(pieceType).GetValueOrDefault(PieceType.Pawn);
+            Types = PieceTypes.SerializeType(pieceType).GetValueOrDefault(PieceTypes.Pawn);
         }
         
-        public PieceMovement(PieceType pieceType, (int, int) destCell, (int, int) currentCell) : base(destCell,
+        public PieceMovement(PieceTypes pieceTypes, (int, int) destCell, (int, int) currentCell) : base(destCell,
             currentCell)
         {
-            Type = pieceType;
+            Types = pieceTypes;
         }
 
         public override List<IMovement> GetPossibleMovements(ChessPieceScript chess)
         {
-            if (Type.PieceLegalMovements.CustomMoveCondition.Invoke(this, chess))
+            if (Types.PieceLegalMovements.CustomMoveCondition.Invoke(this, chess))
             {
-                var movement = Type.PieceLegalMovements.CustomMovement.Invoke(this, chess);
+                var movement = Types.PieceLegalMovements.CustomMovement.Invoke(this, chess);
                 if (movement != null)
                 {
                     var list1 = new List<IMovement>();
@@ -341,17 +341,17 @@ namespace Utilities
                         }
                     }
                     
-                    return Type.Name.Equals("Knight") ? list1 : RemoveObstacleMoves(list1);
+                    return Types.Name.Equals("Knight") ? list1 : RemoveObstacleMoves(list1);
                 }
             }
 
             var list = new List<IMovement>();
 
-            if (!IsInRange(Type, CurrentCell, DestCell)) return list;
+            if (!IsInRange(Types, CurrentCell, DestCell)) return list;
 
-            foreach (var direction in Type.PieceLegalMovements.Directions)
+            foreach (var direction in Types.PieceLegalMovements.Directions)
             {
-                for (ushort i = 0; i < Type.PieceLegalMovements.Range; i++)
+                for (ushort i = 0; i < Types.PieceLegalMovements.Range; i++)
                 {
                     var move = CreateDirectionalMovement(direction, CurrentCell, i + 1);
                     try
@@ -365,7 +365,7 @@ namespace Utilities
                 }
             }
 
-            return Type.Name.Equals("Knight") ? list : RemoveObstacleMoves(list);
+            return Types.Name.Equals("Knight") ? list : RemoveObstacleMoves(list);
         }
     }
 

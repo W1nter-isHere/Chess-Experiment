@@ -27,7 +27,6 @@ public class GameManagerScript : MonoBehaviour
     public GameObject piecePrefab;
     [FormerlySerializedAs("cellObject")] public GameObject cellPrefab;
     public GameObject deadPileManager;
-    public Texture2D chessTexture;
     public Texture2D overlayTexture;
     [FormerlySerializedAs("_round")] public uint round = 1;
     public GameObject escapeUI;
@@ -36,7 +35,7 @@ public class GameManagerScript : MonoBehaviour
 
     void Start()
     {
-        InitializeBoard();
+        InitializeBoard(Resources.Load<TextAsset>("starting_pos").text);
         roundText.text = "Round: " + round;
     }
 
@@ -197,53 +196,13 @@ public class GameManagerScript : MonoBehaviour
         return true;
     }
 
-    private void InitializeBoard()
+    private void InitializeBoard(string json)
     {
         Debug.Log("Initializing board...");
-        
+    
+        // initialize cells
         for (var row = 0; row < 8; row++)
         {
-            for (var column = 0; column < 4; column++)
-            {
-                // create and get script
-                var createdPiece = Instantiate(piecePrefab);
-                var chessPieceScript = createdPiece.GetComponent<ChessPieceScript>();
-                chessPieceScript.Row = row;
-                chessPieceScript.Column = column > 1 ? column == 2 ? 6 : 7 : column;
-                chessPieceScript.Alive = true;
-
-                SetupType(ref chessPieceScript, row, column);
-
-                // setup position
-                createdPiece.transform.position = Utilities.GetPosition(row, chessPieceScript.Column);
-
-                // setup sprite
-                var pieceSpriteRenderer = createdPiece.GetComponent<SpriteRenderer>();
-                if (column == 2 || column == 3)
-                {
-                    pieceSpriteRenderer.color = Color.white;
-                    chessPieceScript.White = true;
-                }
-                else
-                {
-                    pieceSpriteRenderer.color = Color.black;
-                }
-
-                if (chessPieceScript.Type.Equals(PieceType.Pawn.Name))
-                {
-                    pieceSpriteRenderer.sprite = Sprite.Create(chessTexture, PieceType.SerializeType(chessPieceScript.Type).GetValueOrDefault(PieceType.Pawn).TextureRect,
-                        new Vector2(-0.25f, 0), 60f);
-                }
-                else
-                {
-                    pieceSpriteRenderer.sprite = Sprite.Create(chessTexture, PieceType.SerializeType(chessPieceScript.Type).GetValueOrDefault(PieceType.Pawn).TextureRect,
-                        new Vector2(-0.1f, 0), 60f);
-                }
-                
-                // add to board data
-                PiecesOnBoard.Add((row, chessPieceScript.Column), chessPieceScript);
-            }
-
             for (var column = 0; column < 8; column++)
             {
                 var createdCell = Instantiate(cellPrefab);
@@ -259,51 +218,36 @@ public class GameManagerScript : MonoBehaviour
                 {
                     script.ChessOnTop = null;
                 }
-
+    
                 CellsOnBoard.Add((row, column), script);
-                // Debug.Log("Added cell at: " + row + ", " + column);
             }
         }
         
-        // IOUtilities.Load();
+        var save = IOUtilities.Load();
+    
+        if (save == null)
+        {
+            var starting = IOUtilities.Load(json);
+            LoadJson(starting);
+        }
+        else
+        {
+            LoadJson(save);
+        }
+
         IOUtilities.Save();
-    }
-
-    private static void SetupType(ref ChessPieceScript script, int row, int column)
-    {
-        if (column == 1 || column == 2)
+    
+        void LoadJson(List<ChessPieceData> data)
         {
-            script.Type = PieceType.Pawn.Name;
-            return;
-        }
-
-        if (column == 0 || column == 3)
-        {
-            if (row == 0 || row == 7)
+            foreach (var piece in data)
             {
-                script.Type = PieceType.Rook.Name;
+                var createdPiece = Instantiate(piecePrefab);
+                createdPiece.GetComponent<ChessPieceScript>().LoadData(piece);
+                if (!piece.Alive) continue;
+                PiecesOnBoard.Add((piece.Row, piece.Column), createdPiece.GetComponent<ChessPieceScript>());
+                CellsOnBoard[(piece.Row, piece.Column)].ChessOnTop = createdPiece.GetComponent<ChessPieceScript>();
             }
-
-            if (row == 1 || row == 6)
-            {
-                script.Type = PieceType.Knight.Name;
-            }
-
-            if (row == 2 || row == 5)
-            {
-                script.Type = PieceType.Bishop.Name;
-            }
-
-            if (row == 3)
-            {
-                script.Type = PieceType.Queen.Name;
-            }
-
-            if (row == 4)
-            {
-                script.Type = PieceType.King.Name;
-            }
-        }
+        };
     }
 
     public static class Utilities

@@ -13,6 +13,8 @@ public class ChessPieceScript : MonoBehaviour, ISerializable<ChessPieceData>
     public bool Alive { get; set; }
     public uint MovesAmount { get; set; } = 0;
 
+    public Texture2D texture2D;
+    
     public bool CanEat(ChessPieceScript chessPiece)
     {
         return chessPiece != null && Movement.IsInRange(Type, (Row, Column), (chessPiece.Row, chessPiece.Column))&& White ? !chessPiece.White : chessPiece.White;
@@ -43,7 +45,21 @@ public class ChessPieceScript : MonoBehaviour, ISerializable<ChessPieceData>
         Type = data.Type;
 
         transform.position = GameManagerScript.Utilities.GetPosition(Row, Column);
+        var pieceSpriteRenderer = GetComponent<SpriteRenderer>();
+        
+        if (Type.Equals(PieceTypes.Pawn.Name))
+        {
+            pieceSpriteRenderer.sprite = Sprite.Create(texture2D, PieceTypes.SerializeType(Type).GetValueOrDefault(PieceTypes.Pawn).TextureRect,
+                new Vector2(-0.25f, 0), 60f);
+        }
+        else
+        {
+            pieceSpriteRenderer.sprite = Sprite.Create(texture2D, PieceTypes.SerializeType(Type).GetValueOrDefault(PieceTypes.Pawn).TextureRect,
+                new Vector2(-0.1f, 0), 60f);
+        }
 
+        pieceSpriteRenderer.color = White ? Color.white : Color.black;
+        
         if (!Alive)
         {
             GameObject.Find("DeadPileManager").GetComponent<DeadPileManagerScript>().AddToDeadPile(this);

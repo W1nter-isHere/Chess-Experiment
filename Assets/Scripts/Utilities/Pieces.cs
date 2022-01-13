@@ -6,24 +6,24 @@ using UnityEngine.UIElements;
 
 namespace Utilities
 {
-    public readonly struct PieceType
+    public readonly struct PieceTypes
     {
-        public static readonly PieceType Queen = new PieceType("Queen", new Rect(75, 0, 44, 52),
+        public static readonly PieceTypes Queen = new PieceTypes("Queen", new Rect(75, 0, 44, 52),
             new PieceLegalMovements(8, EDirections.Down, EDirections.Left, EDirections.Right, EDirections.Up,
                 EDirections.LeftBtmCorner, EDirections.LeftTopCorner, EDirections.RightBtmCorner,
                 EDirections.RightTopCorner));
 
-        public static readonly PieceType King = new PieceType("King", new Rect(0, 0, 55, 59),
+        public static readonly PieceTypes King = new PieceTypes("King", new Rect(0, 0, 55, 59),
             new PieceLegalMovements(1, EDirections.Down, EDirections.Left, EDirections.Right, EDirections.Up,
                 EDirections.LeftBtmCorner, EDirections.LeftTopCorner, EDirections.RightBtmCorner,
                 EDirections.RightTopCorner));
 
-        public static readonly PieceType Bishop = new PieceType("Bishop", new Rect(222, 0, 47, 51),
+        public static readonly PieceTypes Bishop = new PieceTypes("Bishop", new Rect(222, 0, 47, 51),
             new PieceLegalMovements(8, EDirections.LeftBtmCorner, EDirections.LeftTopCorner, EDirections.RightBtmCorner,
                 EDirections.RightTopCorner));
 
-        public static readonly PieceType Knight =
-            new PieceType("Knight", new Rect(298, 0, 42, 52), new PieceLegalMovements(4,
+        public static readonly PieceTypes Knight =
+            new PieceTypes("Knight", new Rect(298, 0, 42, 52), new PieceLegalMovements(4,
                     (movement, chess) => true,
                     (movement, chess) =>
                     {
@@ -60,10 +60,10 @@ namespace Utilities
                         return movementsFiltered;
                     }));
 
-        public static readonly PieceType Rook = new PieceType("Rook", new Rect(145, 0, 40, 52),
+        public static readonly PieceTypes Rook = new PieceTypes("Rook", new Rect(145, 0, 40, 52),
             new PieceLegalMovements(8, EDirections.Up, EDirections.Down, EDirections.Left, EDirections.Right));
 
-        public static readonly PieceType Pawn = new PieceType("Pawn", new Rect(374, 0, 38, 51), new PieceLegalMovements(
+        public static readonly PieceTypes Pawn = new PieceTypes("Pawn", new Rect(374, 0, 38, 51), new PieceLegalMovements(
             1,
             (movement, chess) => true,
             (movement, chess) =>
@@ -145,16 +145,16 @@ namespace Utilities
         public readonly string Name;
         public readonly PieceLegalMovements PieceLegalMovements;
 
-        public static readonly List<PieceType> Types = new List<PieceType>() { Queen, King, Bishop, Knight, Pawn, Rook };
+        public static readonly List<PieceTypes> Types = new List<PieceTypes>() { Queen, King, Bishop, Knight, Pawn, Rook };
 
-        private PieceType(string name, Rect textureRect, PieceLegalMovements pieceLegalMovements)
+        private PieceTypes(string name, Rect textureRect, PieceLegalMovements pieceLegalMovements)
         {
             TextureRect = textureRect;
             Name = name;
             PieceLegalMovements = pieceLegalMovements;
         }
         
-        public static PieceType? SerializeType(string type)
+        public static PieceTypes? SerializeType(string type)
         {
             foreach (var typee in Types)
             {

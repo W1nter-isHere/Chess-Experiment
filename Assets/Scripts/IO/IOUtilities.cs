@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -12,15 +13,31 @@ namespace IO
         public static readonly string SavesPaths = Application.persistentDataPath + "/Board Saves/";
         [CanBeNull] public static string SaveToOpen = null;
 
-        public static void Load()
+        public static List<ChessPieceData> Load(string json)
         {
-            if (SaveToOpen == null) return;
-        
-            var reader = new StreamReader(SavesPaths + SaveToOpen);
-            var datasFromjson = JsonConvert.DeserializeObject<List<ChessPieceData>>(reader.ReadToEnd());
-            foreach (var piece in datasFromjson)
+            if (json == null || !json.Any()) return null;
+            var datasFromjson = JsonConvert.DeserializeObject<List<ChessPieceData>>(json);
+            return datasFromjson;
+        }
+
+        [CanBeNull]
+        public static List<ChessPieceData> Load()
+        {
+            return Load(LoadStringFromFile(SaveToOpen));
+        }
+
+        public static string LoadStringFromFile(string json)
+        {
+            if (json == null || !json.Any()) return null;
+
+            try
             {
-                
+                var reader = new StreamReader(SavesPaths + json);
+                return reader.ReadToEnd();
+            }
+            catch (FileNotFoundException e)
+            {
+                return null;
             }
         }
 
