@@ -1,9 +1,9 @@
-﻿namespace Utilities
+﻿namespace IO
 {
-    public interface ISerializable<TDummyClass>
+    public interface ISerializable<T>
     {
-        void LoadData(TDummyClass data);
+        void LoadData(T data);
 
-        TDummyClass SaveData();
+        T SaveData();
     }
 }

@@ -95,4 +95,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26bb2378433d9c140b9b9fcf92fe99ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  texture2D: {fileID: 2800000, guid: cd3c0c8a6c24325448859e346df84d0d, type: 3}
+  texture2D: {fileID: 2800000, guid: 7ed5e5f4c472183469a967b8f92123c4, type: 3}

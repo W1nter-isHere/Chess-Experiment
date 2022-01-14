@@ -13,27 +13,30 @@ namespace IO
         public static readonly string SavesPaths = Application.persistentDataPath + "/Board Saves/";
         [CanBeNull] public static string SaveToOpen = null;
 
-        public static List<ChessPieceData> Load(string json)
+        public static Data Load(string json)
         {
-            if (json == null || !json.Any()) return null;
-            var datasFromjson = JsonConvert.DeserializeObject<List<ChessPieceData>>(json);
+            if (String.IsNullOrEmpty(json)) return null;
+            var datasFromjson = JsonConvert.DeserializeObject<Data>(json);
             return datasFromjson;
         }
 
         [CanBeNull]
-        public static List<ChessPieceData> Load()
+        public static Data Load()
         {
             return Load(LoadStringFromFile(SaveToOpen));
         }
 
-        public static string LoadStringFromFile(string json)
+        private static string LoadStringFromFile(string json)
         {
             if (json == null || !json.Any()) return null;
 
             try
             {
-                var reader = new StreamReader(SavesPaths + json);
-                return reader.ReadToEnd();
+                using (var reader = new StreamReader(SavesPaths + json))
+                {
+                    var output = reader.ReadToEnd();
+                    return output;
+                }
             }
             catch (FileNotFoundException e)
             {
@@ -44,10 +47,20 @@ namespace IO
         public static void Save()
         {
             if (!File.Exists(SavesPaths)) Directory.CreateDirectory(SavesPaths);
-            var writer = File.CreateText(SavesPaths + PlayerPrefs.GetInt("LastSavedChess") + ".json");
+
+            var latest = SavesPaths + "/latest.json";
+            var time = SavesPaths + DateTime.Now.ToString("yyyy-MM-dd-hh-mm") + ".json";
+            
+            if (File.Exists(latest)) File.Delete(latest);
+            if (File.Exists(time)) File.Delete(time);
+            
+            var writer = File.CreateText(latest);
             writer.Write(SerializePiecesOnBoard(GameManagerScript.PiecesOnBoard));
             writer.Close();
-            PlayerPrefs.Save();
+
+            var writer2 = File.CreateText(time);
+            writer2.Write(SerializePiecesOnBoard(GameManagerScript.PiecesOnBoard));
+            writer2.Close();
         }
 
         private static string SerializePiecesOnBoard(Dictionary<(int, int), ChessPieceScript> dictionaryIn)
@@ -55,37 +68,55 @@ namespace IO
             var data = new List<ChessPieceData>();
             foreach (var kv in dictionaryIn)
             {
-                data.Add(kv.Value.SaveData());
+                data.Add(kv.Value.SaveData() as ChessPieceData);
             }
-
-            return JsonConvert.SerializeObject(data, Formatting.Indented);
+            return JsonConvert.SerializeObject(new Data(data, DeadPileManagerScript.DeadPieces), Formatting.Indented);
         }
     }
 
     [Serializable]
-    public class ChessPieceData
+    public class ChessPieceData : DeadChessPieceData
     {
         public int Row { get; set; }
         public int Column { get; set; }
-
-        public string Type { get; set; }
-        public bool White { get; set; }
-        public bool Alive { get; set; }
         public uint MovesAmount { get; set; } = 0;
 
-        public ChessPieceData(int row, int column, string type, bool white, uint movesAmount)
+        public ChessPieceData(int row, int column, string type, bool white, uint movesAmount) : base(white, type)
         {
             Row = row;
             Column = column;
-            Type = type;
-            White = white;
             MovesAmount = movesAmount;
         }
 
         public static ChessPieceData FromReal(ChessPieceScript toBeConverted)
         {
-            return new ChessPieceData(toBeConverted.Row, toBeConverted.Column, toBeConverted.Type, toBeConverted.White,
-                toBeConverted.MovesAmount);
+            return new ChessPieceData(toBeConverted.Row, toBeConverted.Column, toBeConverted.Type, toBeConverted.White, toBeConverted.MovesAmount);
+        }
+    }
+
+    [Serializable]
+    public class DeadChessPieceData
+    {
+        public bool White { get; set; }
+        public string Type { get; set; }
+
+        public DeadChessPieceData(bool white, string type)
+        {
+            White = white;
+            Type = type;
+        }
+    }
+
+    [Serializable]
+    public class Data
+    {
+        public List<ChessPieceData> AlivePieces { get; set; }
+        public List<DeadChessPieceData> DeadPieces { get; set; }
+
+        public Data(List<ChessPieceData> alivePieces, List<DeadChessPieceData> deadPieces)
+        {
+            AlivePieces = alivePieces;
+            DeadPieces = deadPieces;
         }
     }
 }

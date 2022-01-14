@@ -8,6 +8,11 @@ public class CellScript : MonoBehaviour
     
     void OnMouseDown()
     {
+        var obj = GameObject.Find("GameManager");
+        var script = obj.GetComponent<GameManagerScript>();
+
+        if (script.escapeUI.activeSelf) return;
+        
         Debug.Log(Row.ToString() + ", " + Column.ToString());
         if (ChessOnTop != null)
         {
@@ -15,8 +20,6 @@ public class CellScript : MonoBehaviour
             Debug.Log(ChessOnTop.Row.ToString() + ", " + ChessOnTop.Column.ToString());
         }
         
-        GameObject obj = GameObject.Find("GameManager");
-        GameManagerScript script = obj.GetComponent<GameManagerScript>();
         script.SelectCell(this);
     }
 }

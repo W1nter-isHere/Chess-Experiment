@@ -26,7 +26,7 @@ public class ButtonManagerScript : MonoBehaviour
     public void OpenChess(String scene)
     {
         StartCoroutine(LoadSceneAsync(scene));
-        PlayerPrefs.SetInt("LastSavedChess", PlayerPrefs.GetInt("LastSavedChess") + 1);
+        PlayerPrefs.SetInt("LastSavedChess", 0);
     }
 
     public void UseAI()
@@ -44,7 +44,7 @@ public class ButtonManagerScript : MonoBehaviour
         var operation = SceneManager.LoadSceneAsync(scene);
         mainMenu.SetActive(false);
         loadingScreen.SetActive(true);
-        while (!operation.isDone)
+        while (Mathf.Clamp01(operation.progress / .9f) != 1)
         {
             float progress = Mathf.Clamp01(operation.progress / .9f);
             slider.value = progress;
@@ -65,13 +65,8 @@ public class ButtonManagerScript : MonoBehaviour
             }
 
             _initialized = true;
-
-            if (!loadSaveDropDown.options.Any())
-            {
-                loadSaveDropDown.value = 0;
-                OnDropDownChange();
-            }
         }
+
         loadSaveDropDown.gameObject.SetActive(!_dropDownOpened);
         loadSaveDropDown.onValueChanged.AddListener(delegate {
             OnDropDownChange();
@@ -81,11 +76,17 @@ public class ButtonManagerScript : MonoBehaviour
             _dropDownOpened = false;
         else if (!_dropDownOpened) 
             _dropDownOpened = true;
+        
+        if (loadSaveDropDown.options.Count != 0)
+        {
+            loadSaveDropDown.value = 0;
+            OnDropDownChange();
+        }
     }
 
     private void OnDropDownChange()
     {
-        Debug.Log("changed to" + loadSaveDropDown.captionText.text);
+        Debug.Log("changed to " + loadSaveDropDown.captionText.text);
         IOUtilities.SaveToOpen = loadSaveDropDown.captionText.text;
     }
     

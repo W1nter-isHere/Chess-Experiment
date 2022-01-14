@@ -1,258 +1,230 @@
-[
-  {
-    "Row": 0,
-    "Column": 0,
-    "Type": "Rook",
-    "White": false,
-    "Alive":true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 0,
-    "Column": 1,
-    "Type": "Pawn",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 0,
-    "Column": 6,
-    "Type": "Pawn",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 0,
-    "Column": 7,
-    "Type": "Rook",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 1,
-    "Column": 0,
-    "Type": "Knight",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 1,
-    "Column": 1,
-    "Type": "Pawn",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 1,
-    "Column": 6,
-    "Type": "Pawn",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 1,
-    "Column": 7,
-    "Type": "Knight",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 2,
-    "Column": 0,
-    "Type": "Bishop",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 2,
-    "Column": 1,
-    "Type": "Pawn",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 2,
-    "Column": 6,
-    "Type": "Pawn",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 2,
-    "Column": 7,
-    "Type": "Bishop",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 3,
-    "Column": 0,
-    "Type": "Queen",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 3,
-    "Column": 1,
-    "Type": "Pawn",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 3,
-    "Column": 6,
-    "Type": "Pawn",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 3,
-    "Column": 7,
-    "Type": "Queen",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 4,
-    "Column": 0,
-    "Type": "King",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 4,
-    "Column": 1,
-    "Type": "Pawn",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 4,
-    "Column": 6,
-    "Type": "Pawn",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 4,
-    "Column": 7,
-    "Type": "King",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 5,
-    "Column": 0,
-    "Type": "Bishop",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 5,
-    "Column": 1,
-    "Type": "Pawn",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 5,
-    "Column": 6,
-    "Type": "Pawn",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 5,
-    "Column": 7,
-    "Type": "Bishop",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 6,
-    "Column": 0,
-    "Type": "Knight",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 6,
-    "Column": 1,
-    "Type": "Pawn",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 6,
-    "Column": 6,
-    "Type": "Pawn",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 6,
-    "Column": 7,
-    "Type": "Knight",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 7,
-    "Column": 0,
-    "Type": "Rook",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 7,
-    "Column": 1,
-    "Type": "Pawn",
-    "White": false,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 7,
-    "Column": 6,
-    "Type": "Pawn",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  },
-  {
-    "Row": 7,
-    "Column": 7,
-    "Type": "Rook",
-    "White": true,
-    "Alive": true,
-    "MovesAmount": 0
-  }
-]
+{
+  "AlivePieces": [
+    {
+      "Row": 0,
+      "Column": 0,
+      "Type": "Rook",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 0,
+      "Column": 1,
+      "Type": "Pawn",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 0,
+      "Column": 6,
+      "Type": "Pawn",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 0,
+      "Column": 7,
+      "Type": "Rook",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 1,
+      "Column": 0,
+      "Type": "Knight",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 1,
+      "Column": 1,
+      "Type": "Pawn",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 1,
+      "Column": 6,
+      "Type": "Pawn",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 1,
+      "Column": 7,
+      "Type": "Knight",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 2,
+      "Column": 0,
+      "Type": "Bishop",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 2,
+      "Column": 1,
+      "Type": "Pawn",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 2,
+      "Column": 6,
+      "Type": "Pawn",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 2,
+      "Column": 7,
+      "Type": "Bishop",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 3,
+      "Column": 0,
+      "Type": "Queen",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 3,
+      "Column": 1,
+      "Type": "Pawn",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 3,
+      "Column": 6,
+      "Type": "Pawn",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 3,
+      "Column": 7,
+      "Type": "Queen",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 4,
+      "Column": 0,
+      "Type": "King",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 4,
+      "Column": 1,
+      "Type": "Pawn",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 4,
+      "Column": 6,
+      "Type": "Pawn",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 4,
+      "Column": 7,
+      "Type": "King",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 5,
+      "Column": 0,
+      "Type": "Bishop",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 5,
+      "Column": 1,
+      "Type": "Pawn",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 5,
+      "Column": 6,
+      "Type": "Pawn",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 5,
+      "Column": 7,
+      "Type": "Bishop",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 6,
+      "Column": 0,
+      "Type": "Knight",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 6,
+      "Column": 1,
+      "Type": "Pawn",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 6,
+      "Column": 6,
+      "Type": "Pawn",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 6,
+      "Column": 7,
+      "Type": "Knight",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 7,
+      "Column": 0,
+      "Type": "Rook",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 7,
+      "Column": 1,
+      "Type": "Pawn",
+      "White": false,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 7,
+      "Column": 6,
+      "Type": "Pawn",
+      "White": true,
+      "MovesAmount": 0
+    },
+    {
+      "Row": 7,
+      "Column": 7,
+      "Type": "Rook",
+      "White": true,
+      "MovesAmount": 0
+    }
+  ],
+  "DeadPieces": [
+  ]
+}

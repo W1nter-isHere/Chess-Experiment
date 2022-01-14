@@ -30,45 +30,66 @@ public class GameManagerScript : MonoBehaviour
     public Texture2D overlayTexture;
     [FormerlySerializedAs("_round")] public uint round = 1;
     public GameObject escapeUI;
+    public AudioSource audioSource;
     
     private CellScript _selectedCell;
 
     void Start()
     {
+        // reset in case player is re-entering scene from main menu after exit
+        CellsOnBoard.Clear();
+        PiecesOnBoard.Clear();
+        // set escape ui to not shown be default
+        escapeUI.SetActive(false);
         InitializeBoard(Resources.Load<TextAsset>("starting_pos").text);
         roundText.text = "Round: " + round;
     }
 
     private void Update()
     {
-        time += Time.deltaTime;
-
-        float minutes = Mathf.FloorToInt(time / 60);
-        float seconds = Mathf.FloorToInt(time % 60);
-
-        timeText.text = "Time: " + string.Format("{0:00}:{1:00}", minutes, seconds);
-
-        _moveQueueCached = new Dictionary<ChessPieceScript, (float, float)>(_moveQueue);
-        foreach (var toMove in _moveQueue)
         {
-            var obj = toMove.Key.gameObject;
-            var vec3 = obj.transform.position;
-            vec3 = new Vector3(math.lerp(vec3.x, toMove.Value.Item1, 0.1f),
-                math.lerp(vec3.y, toMove.Value.Item2, 0.1f), -0.1f);
-            obj.transform.position = vec3;
-
-            if (Math.Round(vec3.x, 5) == Math.Round(toMove.Value.Item1, 5) &&
-                Math.Round(vec3.y, 5) == Math.Round(toMove.Value.Item2, 5))
+            // show escape gui when escape key is called
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                _moveQueueCached.Remove(toMove.Key);
+                escapeUI.SetActive(!escapeUI.activeSelf);
             }
         }
+        {
+            // increase time
+            time += Time.deltaTime;
 
-        _moveQueue = new Dictionary<ChessPieceScript, (float, float)>(_moveQueueCached);
+            float minutes = Mathf.FloorToInt(time / 60);
+            float seconds = Mathf.FloorToInt(time % 60);
+
+            timeText.text = "Time: " + string.Format("{0:00}:{1:00}", minutes, seconds);
+        }
+        {
+            // move animation
+            _moveQueueCached = new Dictionary<ChessPieceScript, (float, float)>(_moveQueue);
+            foreach (var toMove in _moveQueue)
+            {
+                var obj = toMove.Key.gameObject;
+                var vec3 = obj.transform.position;
+                vec3 = new Vector3(math.lerp(vec3.x, toMove.Value.Item1, 0.1f),
+                    math.lerp(vec3.y, toMove.Value.Item2, 0.1f), -0.1f);
+                obj.transform.position = vec3;
+
+                if (Math.Round(vec3.x, 5) == Math.Round(toMove.Value.Item1, 5) &&
+                    Math.Round(vec3.y, 5) == Math.Round(toMove.Value.Item2, 5))
+                {
+                    _moveQueueCached.Remove(toMove.Key);
+                }
+            }
+
+            _moveQueue = new Dictionary<ChessPieceScript, (float, float)>(_moveQueueCached);
+        }
     }
 
+    
+    
     public void SelectCell(CellScript cell)
     {
+        if (escapeUI.activeSelf) return;
         // if there is already a selected cell, plan to move selected piece on selected cell to newly clicked cell
         if (_selectedCell != null)
         {
@@ -192,6 +213,7 @@ public class GameManagerScript : MonoBehaviour
         piece.MovesAmount += 1;
         PiecesOnBoard.Add((piece.Row, piece.Column), piece);
         IOUtilities.Save();
+        audioSource.Play();
         
         return true;
     }
@@ -237,15 +259,21 @@ public class GameManagerScript : MonoBehaviour
 
         IOUtilities.Save();
     
-        void LoadJson(List<ChessPieceData> data)
+        void LoadJson(Data data)
         {
-            foreach (var piece in data)
+            foreach (var piece in data.AlivePieces)
             {
                 var createdPiece = Instantiate(piecePrefab);
                 createdPiece.GetComponent<ChessPieceScript>().LoadData(piece);
-                if (!piece.Alive) continue;
                 PiecesOnBoard.Add((piece.Row, piece.Column), createdPiece.GetComponent<ChessPieceScript>());
                 CellsOnBoard[(piece.Row, piece.Column)].ChessOnTop = createdPiece.GetComponent<ChessPieceScript>();
+            }
+
+            foreach (var dead in data.DeadPieces)
+            {
+                var createdPiece = Instantiate(piecePrefab);
+                createdPiece.GetComponent<ChessPieceScript>().LoadData(dead);
+                deadPileManager.GetComponent<DeadPileManagerScript>().AddToDeadPile(createdPiece.GetComponent<ChessPieceScript>(), false);
             }
         };
     }

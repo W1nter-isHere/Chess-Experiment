@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using IO;
 
 namespace Utilities
 {
@@ -100,10 +101,7 @@ namespace Utilities
                     return EDirections.LeftTopCorner;
 
                 // current column is smaller than destination column, moved down
-                if (currentColumn < destColumn)
-                    return EDirections.LeftBtmCorner;
-
-                return EDirections.Left;
+                return currentColumn < destColumn? EDirections.LeftBtmCorner : EDirections.Left;
             }
 
             // current row is smaller than destination row, moved right
@@ -114,7 +112,7 @@ namespace Utilities
                     return EDirections.RightTopCorner;
 
                 // current column is smaller than destination column, moved down
-                return currentColumn < destColumn ? EDirections.LeftBtmCorner : EDirections.Right;
+                return currentColumn < destColumn ? EDirections.RightBtmCorner : EDirections.Right;
             }
 
             if (currentColumn > destColumn)
@@ -340,7 +338,6 @@ namespace Utilities
                         {
                         }
                     }
-                    
                     return Types.Name.Equals("Knight") ? list1 : RemoveObstacleMoves(list1);
                 }
             }

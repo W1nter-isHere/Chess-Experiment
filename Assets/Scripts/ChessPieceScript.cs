@@ -1,16 +1,14 @@
-using System;
 using IO;
-using Utilities;
 using UnityEngine;
+using Utilities;
 
-public class ChessPieceScript : MonoBehaviour, ISerializable<ChessPieceData>
+public class ChessPieceScript : MonoBehaviour, ISerializable<DeadChessPieceData>
 {
     public int Row { get; set; }
     public int Column { get; set; }
 
     public string Type { get; set; }
     public bool White { get; set; }
-    public bool Alive { get; set; }
     public uint MovesAmount { get; set; } = 0;
 
     public Texture2D texture2D;
@@ -35,13 +33,16 @@ public class ChessPieceScript : MonoBehaviour, ISerializable<ChessPieceData>
         }
     }
 
-    public void LoadData(ChessPieceData data)
+    public void LoadData(DeadChessPieceData data)
     {
-        Row = data.Row;
-        Column = data.Column;
-        MovesAmount = data.MovesAmount;
+        if (data is ChessPieceData aliveData)
+        {
+            Row = aliveData.Row;
+            Column = aliveData.Column;
+            MovesAmount = aliveData.MovesAmount;
+        }
+
         White = data.White;
-        Alive = data.Alive;
         Type = data.Type;
 
         transform.position = GameManagerScript.Utilities.GetPosition(Row, Column);
@@ -50,23 +51,18 @@ public class ChessPieceScript : MonoBehaviour, ISerializable<ChessPieceData>
         if (Type.Equals(PieceTypes.Pawn.Name))
         {
             pieceSpriteRenderer.sprite = Sprite.Create(texture2D, PieceTypes.SerializeType(Type).GetValueOrDefault(PieceTypes.Pawn).TextureRect,
-                new Vector2(-0.25f, 0), 60f);
+                new Vector2(0, 0), 200f);
         }
         else
         {
             pieceSpriteRenderer.sprite = Sprite.Create(texture2D, PieceTypes.SerializeType(Type).GetValueOrDefault(PieceTypes.Pawn).TextureRect,
-                new Vector2(-0.1f, 0), 60f);
+                new Vector2(0, 0), 200f);
         }
 
         pieceSpriteRenderer.color = White ? Color.white : Color.black;
-        
-        if (!Alive)
-        {
-            GameObject.Find("DeadPileManager").GetComponent<DeadPileManagerScript>().AddToDeadPile(this);
-        }
     }
 
-    public ChessPieceData SaveData()
+    public DeadChessPieceData SaveData()
     {
         return ChessPieceData.FromReal(this);
     }
