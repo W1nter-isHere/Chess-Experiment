@@ -10,10 +10,10 @@ using Utilities;
 public class GameManagerScript : MonoBehaviour
 {
     public static bool UseAI = false;
-    
+
     public static readonly Dictionary<(int, int), ChessPieceScript> PiecesOnBoard =
         new Dictionary<(int, int), ChessPieceScript>();
-    
+
     public static readonly Dictionary<(int, int), CellScript> CellsOnBoard = new Dictionary<(int, int), CellScript>();
 
     private static Dictionary<ChessPieceScript, (float, float)> _moveQueue =
@@ -30,23 +30,52 @@ public class GameManagerScript : MonoBehaviour
     public Texture2D overlayTexture;
     [FormerlySerializedAs("_round")] public uint round = 1;
     public GameObject escapeUI;
+    public GameObject winUI;
     public AudioSource audioSource;
-    
+
     private CellScript _selectedCell;
+    private (int, int)? _whiteKingPosition = null;
+    private (int, int)? _blackKingPosition = null;
+
+    public delegate void OnMove(ChessPieceScript pieceToMove);
+
+    public static event OnMove ONMoveEvent;
 
     void Start()
     {
         // reset in case player is re-entering scene from main menu after exit
         CellsOnBoard.Clear();
         PiecesOnBoard.Clear();
-        // set escape ui to not shown be default
+        // set escape ui to not shown by default
         escapeUI.SetActive(false);
+        // set win ui to not shown by default
+        winUI.SetActive(false);
+        // initialize board
         InitializeBoard(Resources.Load<TextAsset>("starting_pos").text);
         roundText.text = "Round: " + round;
     }
 
     private void Update()
     {
+        {
+            if (_whiteKingPosition.HasValue)
+            {
+                if (_whiteKingPosition == (-1, -1))
+                {
+                    winUI.GetComponentInChildren<Text>().text = "Black Team Won!";
+                    winUI.SetActive(true);
+                }
+            }
+            
+            if (_blackKingPosition.HasValue)
+            {
+                if (_blackKingPosition == (-1, -1))
+                {
+                    winUI.GetComponentInChildren<Text>().text = "White Team Won!";
+                    winUI.SetActive(true);
+                }
+            }
+        }
         {
             // show escape gui when escape key is called
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -85,11 +114,11 @@ public class GameManagerScript : MonoBehaviour
         }
     }
 
-    
-    
+
     public void SelectCell(CellScript cell)
     {
         if (escapeUI.activeSelf) return;
+        if (winUI.activeSelf) return;
         // if there is already a selected cell, plan to move selected piece on selected cell to newly clicked cell
         if (_selectedCell != null)
         {
@@ -131,7 +160,7 @@ public class GameManagerScript : MonoBehaviour
         else
         {
             if (cell.ChessOnTop == null) return;
-            
+
             // check if it is your turn to move the chess piece
             var pieceOnCell = cell.ChessOnTop;
             if (round % 2 != 0)
@@ -197,6 +226,17 @@ public class GameManagerScript : MonoBehaviour
                 var toBeEatenPiece = PiecesOnBoard[movement.GetDestCell()];
                 PiecesOnBoard.Remove((toBeEatenPiece.Row, toBeEatenPiece.Column));
                 deadPileManager.GetComponent<DeadPileManagerScript>().AddToDeadPile(toBeEatenPiece);
+                if (toBeEatenPiece.Type.Equals("King"))
+                {
+                    if (toBeEatenPiece.White)
+                    {
+                        _whiteKingPosition = (-1, -1);
+                    }
+                    else
+                    {
+                        _blackKingPosition = (-1, -1);
+                    }
+                }
             }
             catch
             {
@@ -214,14 +254,28 @@ public class GameManagerScript : MonoBehaviour
         PiecesOnBoard.Add((piece.Row, piece.Column), piece);
         IOUtilities.Save();
         audioSource.Play();
-        
+
+        if (piece.Type.Equals("King"))
+        {
+            if (piece.White)
+            {
+                _whiteKingPosition = (piece.Row, piece.Column);
+            }
+            else
+            {
+                _blackKingPosition = (piece.Row, piece.Column);
+            }
+        }
+
+        ONMoveEvent?.Invoke(piece);
+
         return true;
     }
 
     private void InitializeBoard(string json)
     {
         Debug.Log("Initializing board...");
-    
+
         // initialize cells
         for (var row = 0; row < 8; row++)
         {
@@ -240,13 +294,13 @@ public class GameManagerScript : MonoBehaviour
                 {
                     script.ChessOnTop = null;
                 }
-    
+
                 CellsOnBoard.Add((row, column), script);
             }
         }
-        
+
         var save = IOUtilities.Load();
-    
+
         if (save == null)
         {
             var starting = IOUtilities.Load(json);
@@ -258,24 +312,43 @@ public class GameManagerScript : MonoBehaviour
         }
 
         IOUtilities.Save();
-    
+
         void LoadJson(Data data)
         {
             foreach (var piece in data.AlivePieces)
             {
                 var createdPiece = Instantiate(piecePrefab);
-                createdPiece.GetComponent<ChessPieceScript>().LoadData(piece);
-                PiecesOnBoard.Add((piece.Row, piece.Column), createdPiece.GetComponent<ChessPieceScript>());
-                CellsOnBoard[(piece.Row, piece.Column)].ChessOnTop = createdPiece.GetComponent<ChessPieceScript>();
+                var script = createdPiece.GetComponent<ChessPieceScript>();
+                script.LoadData(piece);
+                PiecesOnBoard.Add((piece.Row, piece.Column), script);
+                CellsOnBoard[(piece.Row, piece.Column)].ChessOnTop = script;
+                if (!script.Type.Equals("King")) continue;
+                if (script.White)
+                {
+                    _whiteKingPosition = (script.Row, script.Column);
+                }
+                else
+                {
+                    _blackKingPosition = (script.Row, script.Column);
+                }
             }
 
             foreach (var dead in data.DeadPieces)
             {
                 var createdPiece = Instantiate(piecePrefab);
-                createdPiece.GetComponent<ChessPieceScript>().LoadData(dead);
-                deadPileManager.GetComponent<DeadPileManagerScript>().AddToDeadPile(createdPiece.GetComponent<ChessPieceScript>(), false);
+                var script = createdPiece.GetComponent<ChessPieceScript>();
+                script.LoadData(dead);
+                deadPileManager.GetComponent<DeadPileManagerScript>().AddToDeadPile(script, false);
+                if (script.White)
+                {
+                    _whiteKingPosition = (-1, -1);
+                }
+                else
+                {
+                    _blackKingPosition = (-1, -1);
+                }
             }
-        };
+        }
     }
 
     public static class Utilities

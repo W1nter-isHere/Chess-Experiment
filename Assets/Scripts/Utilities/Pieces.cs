@@ -145,8 +145,8 @@ namespace Utilities
         public readonly Rect TextureRect;
         public readonly string Name;
         public readonly PieceLegalMovements PieceLegalMovements;
-
-        public static readonly List<PieceTypes> Types = new List<PieceTypes>() { Queen, King, Bishop, Knight, Pawn, Rook };
+        
+        private static readonly PieceTypes[] Types = { Queen, King, Bishop, Knight, Rook, Pawn };
 
         private PieceTypes(string name, Rect textureRect, PieceLegalMovements pieceLegalMovements)
         {
